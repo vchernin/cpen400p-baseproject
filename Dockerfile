@@ -15,7 +15,7 @@ RUN apt-get update && \
 yes | unminimize && \
 # remove uncessary cache
 rm -rf /var/lib/apt/lists/* && \
-# get rid of now useless file, left in layer but that's ok
+# get rid of now useless file, left in layer but that's ok since it's small
 rm apt-dependencies.txt
 
 # todo these should be versioned locked too
