@@ -1,6 +1,6 @@
 # Cpen 400p dependencies but better
 
-This is a podman/docker setup for cpen 400p. This should theoretically be equiavalent to the provided virtualbox image.
+This is a podman/docker setup for cpen 400p. This should theoretically be equivalent to the provided virtualbox image.
 
 If using `docker` replace `podman` with `docker` in the below commands
 
