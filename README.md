@@ -28,7 +28,7 @@ podman run -it --rm cpen400p-baseproject
 
 Not recommended unless you have many threads due to needing to compile LLVM and a few other things
 
-```sh
+```
 podman build -t ghcr.io/vchernin/cpen400p-baseproject .
 ```
 
