@@ -1,6 +1,9 @@
 # updated as of 2023-01-14, tag is only for human reference
 FROM docker.io/ubuntu:18.04@sha256:0d32fa8d8671fb6600db45620b40e5189fc02eebb7e29fe8fbb0db49b58becea AS build
 
+# some of this file is rather annoying boilerplate copy paste, 
+# but it's not worth rewriting in buildstream or something more abstract as arguably we should not build a lot of these things in the first place, and just rely on some newer distro instead. Why ubuntu 18.04?
+
 # things generally seem to assume stuff is dumped here because we are running as the root user
 # todo user should probably not also be root but it doesn't really matter for this course
 WORKDIR /root
@@ -24,12 +27,15 @@ rm requirements.txt
 
 # cmake
 
-RUN wget --quiet https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-linux-x86_64.tar.gz && \
+RUN curl -LO https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-linux-x86_64.tar.gz && \
+echo "73565c72355c6652e9db149249af36bcab44d9d478c5546fd926e69ad6b43640 cmake-3.22.1-linux-x86_64.tar.gz" > SHA256SUMS.txt && \
+sha256sum -c SHA256SUMS.txt && \
 tar -xzf cmake-3.22.1-linux-x86_64.tar.gz && \
+mv cmake-3.22.1-linux-x86_64 cmake && \
 # unfortunately the man pages dont copy due to the man link in /usr/local that seem to exist in ubuntu 18.04's image
-rm cmake-3.22.1-linux-x86_64/man -r && \
-cp -a cmake-3.22.1-linux-x86_64/. /usr/local/ && \
-rm cmake-3.22.1-linux-x86_64.tar.gz cmake-3.22.1-linux-x86_64 -rf
+rm cmake/man -r && \
+cp -a cmake/. /usr/local/ && \
+rm *.tar.gz cmake SHA256SUMS.txt -rf
 
 # llvm
 
@@ -38,7 +44,28 @@ rm cmake-3.22.1-linux-x86_64.tar.gz cmake-3.22.1-linux-x86_64 -rf
 # but it means we can clean up this layer properly, since even if you squash this at the end with a multi stage build,
 # you still dont want a 15 GB docker layer getting cached every time you build this image
 
-RUN git clone --branch release/13.x --depth 1 https://github.com/llvm/llvm-project.git && \
+# use a file of sha256sums since it is a bit more robust and faster than git cloning  (llvm is only a 140 MB tar versus the massive download size even with shallow cloning)
+# even with a shallow clone git clone allows us to specify a branch/tag when cloning, but a branch and tag can have the same name so its not very fool proof
+COPY SHA256SUMS.txt ./
+
+RUN curl -LO https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-13.0.1.tar.gz && \
+curl -LO https://github.com/Z3Prover/z3/archive/refs/tags/z3-4.12.0.tar.gz && \
+curl -LO https://github.com/klee/klee-uclibc/archive/refs/tags/klee_uclibc_v1.3.tar.gz && \
+# originally tried using tag v2.3
+# checkout a more recent commit as that seems necessary
+# todo try find a better approach
+curl -LO https://github.com/klee/klee/archive/fc778afc9029c48b78aa59c20cdf3e8223a88081.tar.gz && \
+sha256sum -c SHA256SUMS.txt && \
+# unarchive everything, and then rename so file names are more consistent
+tar -xzf llvmorg-13.0.1.tar.gz && \
+mv llvm-project-llvmorg-13.0.1 llvm-project && \
+tar -xzf z3-4.12.0.tar.gz && \
+mv z3-z3-4.12.0 z3 && \
+tar -xzf klee_uclibc_v1.3.tar.gz && \
+mv klee-uclibc-klee_uclibc_v1.3 klee-uclibc && \
+tar -xzf fc778afc9029c48b78aa59c20cdf3e8223a88081.tar.gz && \
+mv klee-fc778afc9029c48b78aa59c20cdf3e8223a88081 klee && \
+# llvm
 mkdir llvm-project/build && \ 
 cd llvm-project/build && \
 cmake -G Ninja ../llvm -DLLVM_ENABLE_PROJECTS="tools;clang;compiler-rt"  -DLLVM_TARGETS_TO_BUILD="host"  -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_OPTIMIZED_TABLEGEN=ON -DCMAKE_BUILD_TYPE=Release && \
@@ -46,8 +73,7 @@ ninja && \
 ninja install && \
 cd ../../ && \
 # klee
-# first install z3 provider
-git clone --branch z3-4.12.0 --depth 1 https://github.com/Z3Prover/z3.git && \
+# first install z3 prover
 mkdir z3/build && \
 cd z3/build && \
 cmake -G Ninja ../ && \
@@ -59,31 +85,29 @@ cp ../src/api/*.h ./include/ && \
 cp ../src/api/c++/z3++.h ./include/z3++.h && \
 cd ../../ && \
 # now install KLEE and KLEE-uClibC:
-git clone --branch klee_uclibc_v1.3 --depth 1 https://github.com/klee/klee-uclibc.git && \
 cd klee-uclibc && \
 ./configure --make-llvm-lib && \
 make KLEE_CFLAGS="-DKLEE_SYM_PRINTF" && \
 cd .. && \
-# before was --branch v2.3 and --depth 1
-# checkout a more recent commit as that seems necessary
-# todo try find a better approach
-git clone https://github.com/klee/klee.git && \
 cd klee && \
-git checkout fc778afc9029c48b78aa59c20cdf3e8223a88081 && \
 mkdir build && \
 cd build && \
 cmake -G Ninja -DENABLE_SOLVER_Z3=ON -DENABLE_UNIT_TESTS=OFF -DENABLE_SYSTEM_TESTS=OFF -DZ3_INCLUDE_DIRS=$HOME/z3/build/include -DENABLE_TCMALLOC=OFF -DHAVE_Z3_GET_ERROR_MSG_NEEDS_CONTEXT=ON -DENABLE_POSIX_RUNTIME=ON -DENABLE_KLEE_UCLIBC=ON -DKLEE_UCLIBC_PATH=$HOME/klee-uclibc -DLLVMCC=$HOME/llvm-project/build/bin/clang -DLLVMCXX=$HOME/llvm-project/build/bin/clang++ .. && \
 ninja && \
 ninja install && \
 cd ../../ && \
-rm llvm-project z3 klee-uclibc klee -rf
+rm *.tar.gz llvm-project z3 klee-uclibc klee SHA256SUMS.txt -rf
 
-RUN git clone --branch 4.05c --depth 1 https://github.com/AFLplusplus/AFLplusplus.git && \
+RUN curl -LO https://github.com/AFLplusplus/AFLplusplus/archive/refs/tags/4.05c.tar.gz && \
+echo "5a2a7e94690771e2d80d2b30a72352e16bcc14f2cfff6d6fc1fd67f0ce2a9d3b 4.05c.tar.gz" > SHA256SUMS.txt && \
+sha256sum -c SHA256SUMS.txt && \
+tar -xzf 4.05c.tar.gz && \
+mv AFLplusplus-4.05c AFLplusplus && \
 cd AFLplusplus && \
 make distrib && \
 make install && \
 cd .. && \
-rm AFLplusplus -rf
+rm *.tar.gz AFLplusplus SHA256SUMS.txt -rf
 
 # this approach is clumsy due to apt deps as we have no way of knowing what apt deps we need at runtime
 # FROM docker.io/ubuntu:18.04@sha256:0d32fa8d8671fb6600db45620b40e5189fc02eebb7e29fe8fbb0db49b58becea
