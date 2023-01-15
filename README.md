@@ -32,7 +32,7 @@ Not recommended unless you have many threads due to needing to compile LLVM and 
 podman build -t ghcr.io/vchernin/cpen400p-baseproject .
 ```
 
-#### Changes from original instructions:
+### Changes from original instructions:
 
 - python2-minimal from apt doesn't exist in ubuntu 18.04 so remove it
 - ninja-build from apt was listed twice
