@@ -45,5 +45,6 @@ jobs:
         uses: docker/build-push-action@v3.2.0
         with:
           push: ${{ steps.push_or_pr.outputs.push_image }}
+          tags: vchernin/cpen400p-baseproject:latest
           cache-from: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest
           cache-to: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest,mode=max
