@@ -16,7 +16,7 @@ jobs:
     name: Container build
     runs-on: self-hosted
     permissions:
-      packages: write
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.1.0
