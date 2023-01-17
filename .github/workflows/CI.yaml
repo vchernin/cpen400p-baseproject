@@ -34,11 +34,11 @@ jobs:
       - name: Check if push to master or pull request
         id: push_or_pr
         run: |
-          if [ $GITHUB_EVENT_NAME == "push" && $GITHUB_REF == "refs/heads/master" ]
+          if [ "$GITHUB_EVENT_NAME" == "push" ] && [ "$GITHUB_REF" == "refs/heads/master" ]
           then
-              echo "push_image=true" >> $GITHUB_OUTPUT
+              echo "push_image=true" >> "$GITHUB_OUTPUT"
           else
-              echo "push_image=false" >> $GITHUB_OUTPUT
+              echo "push_image=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build Docker image 
