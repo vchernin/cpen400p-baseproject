@@ -44,9 +44,6 @@ jobs:
       - name: Build Docker image 
         uses: docker/build-push-action@v3.2.0
         with:
-          pull: true
           push: ${{ steps.push_or_pr.outputs.push_image }}
-          context: .
-          tags: cpen400p-baseproject
           cache-from: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest
           cache-to: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest,mode=max
