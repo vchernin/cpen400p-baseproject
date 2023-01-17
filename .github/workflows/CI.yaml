@@ -14,7 +14,7 @@ concurrency:
 jobs:
   container-build:
     name: Container build
-    runs-on: self-hosted
+    runs-on: ubuntu-20.04
     permissions:
       packages: write
     steps:
@@ -42,7 +42,7 @@ jobs:
           else
               echo "push_image=false" >> "$GITHUB_OUTPUT"
           fi
-
+      # the package itself must allow the repo running this workflow to write to it 
       - name: Build Docker image 
         uses: docker/build-push-action@v3.3.0
         with:
