@@ -49,4 +49,5 @@ jobs:
           push: ${{ steps.push_or_pr.outputs.push_image }}
           tags: ghcr.io/vchernin/cpen400p-baseproject:latest
           cache-from: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest
-          cache-to: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest,mode=max
+          # don't set cache-to as that effectively means always pushing the image which is already done conditionally by push: true
+          # gha cache can't be used since it is only 10 GB (the image is 5.6 GB)
