@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Build Docker image 
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v3.3.0
         with:
           push: ${{ steps.push_or_pr.outputs.push_image }}
           tags: vchernin/cpen400p-baseproject:latest
