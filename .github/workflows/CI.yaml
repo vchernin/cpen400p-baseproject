@@ -15,11 +15,9 @@ jobs:
   container-build:
     name: Container build
     runs-on: self-hosted
-    permissions:
-      contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.3.0
 
       # build the container using buildx so it can be cached 
       - name: Set up Docker Buildx
@@ -44,9 +42,9 @@ jobs:
           fi
 
       - name: Build Docker image 
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v3.3.0
         with:
           push: ${{ steps.push_or_pr.outputs.push_image }}
-          tags: vchernin/cpen400p-baseproject:latest
+          tags: ghcr.io/vchernin/cpen400p-baseproject:latest
           cache-from: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest
           cache-to: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest,mode=max
