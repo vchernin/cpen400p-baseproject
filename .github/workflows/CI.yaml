@@ -14,7 +14,7 @@ concurrency:
 jobs:
   container-build:
     name: Container build
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.1.0
@@ -46,6 +46,6 @@ jobs:
         with:
           push: ${{ steps.push_or_pr.outputs.push_image }}
           context: .
-          tags: vchernin/cpen400p-baseproject:latest
+          tags: cpen400p-baseproject
           cache-from: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest
           cache-to: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest,mode=max
