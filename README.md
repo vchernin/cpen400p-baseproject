@@ -1,13 +1,11 @@
 # Cpen 400p container setup
 
-This is a podman/docker setup for cpen 400p. This should theoretically be equivalent to the provided virtualbox image.
-
-If using `docker` replace `podman` with `docker` in the below commands
+This is a docker setup for cpen 400p. This should theoretically be equivalent to the provided virtualbox image.
 
 ### Pull image
 
 ```
-podman pull ghcr.io/vchernin/cpen400p-baseproject:latest
+docker pull ghcr.io/vchernin/cpen400p-baseproject:latest
 ```
 
 
@@ -16,7 +14,7 @@ podman pull ghcr.io/vchernin/cpen400p-baseproject:latest
 Note for practical usage you would probably want to mount your own working directory into the container (say your local llvm git repo). There are no git repos in this container, just prebuilt binaries and libraries.
 
 ```
-podman run -it --rm cpen400p-baseproject
+docker run -it --rm cpen400p-baseproject
 ```
 
 ### Build
@@ -24,7 +22,7 @@ podman run -it --rm cpen400p-baseproject
 Not recommended unless you have many threads due to needing to compile LLVM and a few other things
 
 ```
-podman build -t ghcr.io/vchernin/cpen400p-baseproject .
+docker build -t ghcr.io/vchernin/cpen400p-baseproject .
 ```
 
 #### Push
@@ -33,8 +31,8 @@ First get a PAT for your github account that has write access to this repo.
 
 ```
 export CR_PAT=YOUR_TOKEN
-echo $CR_PAT | podman login ghcr.io -u USERNAME --password-stdin
-podman push ghcr.io/vchernin/cpen400p-baseproject:latest
+echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+docker push ghcr.io/vchernin/cpen400p-baseproject:latest
 ```
 
 [Full documentation about github container registry usage](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
