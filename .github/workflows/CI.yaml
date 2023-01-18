@@ -48,6 +48,7 @@ jobs:
         uses: docker/build-push-action@v3.3.0
         with:
           # cache-to is set on master and effectively pushes the image since it caches using the registry
+          # if we were to set push: true and set cache-to the image would get pushed twice
           push: false
           tags: ghcr.io/vchernin/cpen400p-baseproject:latest
           cache-from: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest
