@@ -32,26 +32,23 @@ jobs:
           username: vchernin
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # we only want to actually push and cache the image if this is job running for master
-      - name: Check if push to master or pull request
-        id: push_or_pr
-        run: |
-          if [ "$GITHUB_EVENT_NAME" == "push" ] && [ "$GITHUB_REF" == "refs/heads/master" ]
-          then
-              echo "push_image=type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest,mode=max" >> "$GITHUB_OUTPUT"
-          else
-              echo "push_image=" >> "$GITHUB_OUTPUT"
-          fi
-
-      # the package itself must allow the repo running this workflow to write to it
-      - name: Build Docker image 
+      - name: Build Docker image (pull request)
         uses: docker/build-push-action@v3.3.0
+        if: github.event_name == 'pull_request'
         with:
-          # cache-to is set on master and effectively pushes the image since it caches using the registry
-          # if we were to set push: true and set cache-to the image would get pushed twice
           push: false
           tags: ghcr.io/vchernin/cpen400p-baseproject:latest
-          cache-from: type=registry,ref=ghcr.io/vchernin/cpen400p-baseproject:latest
-          # when this is set to empty nothing should be cached
-          cache-to: ${{ steps.push_or_pr.outputs.push_image }}
-          # gha cache can't be used since it is only 10 GB (the image is 5.6 GB)
+          cache-from: type=gha
+          # don't set cache-to as it will be evicted too easily due to the 10 GB limit (and github actions cache doesn't let pull requests preserve much for caching)
+
+      # the package itself must allow the repo running this workflow to write to it so the image can be pushed
+      - name: Build and push Docker image (push to master)
+        uses: docker/build-push-action@v3.3.0
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        with:
+          push: true
+          tags: ghcr.io/vchernin/cpen400p-baseproject:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # even though gha cache is only 10 GB, so it will be evicted every time (the image is 5.6 GB), this should still work
+          # don't rely on registry cache as that image pushed for caching can't be actually used as a working image at least in podman
