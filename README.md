@@ -41,6 +41,8 @@ docker push ghcr.io/vchernin/cpen400p-baseproject:latest
 
 #### Changes from original instructions
 
+These were done as needed when issues were found.
+
 - python2-minimal from apt doesn't exist in ubuntu 18.04 so remove it
 - ninja-build from apt was listed twice
 - llvm build instructions had needless cding
