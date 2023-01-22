@@ -96,7 +96,8 @@ cmake -G Ninja -DENABLE_SOLVER_Z3=ON -DENABLE_UNIT_TESTS=OFF -DENABLE_SYSTEM_TES
 ninja && \
 ninja install && \
 cd ../../ && \
-rm *.tar.gz llvm-project z3 klee-uclibc klee SHA256SUMS.txt -rf
+# remove llvm-project's build directory, not llvm-project itself as we want it in the final container image (a llvm submodule is more annoying)
+rm *.tar.gz llvm-project/build z3 klee-uclibc klee SHA256SUMS.txt -rf
 
 RUN curl -LO https://github.com/AFLplusplus/AFLplusplus/archive/refs/tags/4.05c.tar.gz && \
 echo "5a2a7e94690771e2d80d2b30a72352e16bcc14f2cfff6d6fc1fd67f0ce2a9d3b 4.05c.tar.gz" > SHA256SUMS.txt && \
