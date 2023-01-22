@@ -110,6 +110,41 @@ make install && \
 cd .. && \
 rm *.tar.gz AFLplusplus SHA256SUMS.txt -rf
 
+# mold (depends on newer clang so build it after llvm)
+# build openssl and install extra stdlib headers following https://github.com/rui314/mold/blob/ec756333cbfdb02dc96a4aebf9f8a9b374a4b5a7/common/Dockerfile
+RUN curl -LO https://www.openssl.org/source/openssl-3.0.7.tar.gz && \
+echo "83049d042a260e696f62406ac5c08bf706fd84383f945cf21bd61e9ed95c396e openssl-3.0.7.tar.gz" > SHA256SUMS.txt && \
+sha256sum -c SHA256SUMS.txt && \
+tar -xzf openssl-3.0.7.tar.gz && \
+mv openssl-3.0.7 openssl && \
+cd openssl && \
+./Configure --prefix=/usr/local --libdir=lib && \
+make -j$(nproc) && \
+make -j$(nproc) install && \
+ldconfig && \
+cd .. && \
+rm *.tar.gz openssl SHA256SUMS.txt -rf
+
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends software-properties-common && \
+  add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
+  apt-get update && \
+  apt-get install -y --no-install-recommends libstdc++-11-dev && \
+  rm -rf /var/lib/apt/lists/*
+
+RUN curl -LO https://github.com/rui314/mold/archive/refs/tags/v1.10.1.tar.gz && \
+echo "19e4aa16b249b7e6d2e0897aa1843a048a0780f5c76d8d7e643ab3a4be1e4787 v1.10.1.tar.gz" > SHA256SUMS.txt && \
+sha256sum -c SHA256SUMS.txt && \
+tar -xzf v1.10.1.tar.gz && \
+mv mold-1.10.1 mold && \
+mkdir mold/build && \
+cd mold/build && \
+cmake -G Ninja ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ && \
+ninja && \
+ninja install && \
+cd ../../ && \
+rm *.tar.gz mold SHA256SUMS.txt -rf
+
 # this approach is clumsy due to apt deps as we have no way of knowing what apt deps we need at runtime
 # FROM docker.io/ubuntu:18.04@sha256:0d32fa8d8671fb6600db45620b40e5189fc02eebb7e29fe8fbb0db49b58becea
 
