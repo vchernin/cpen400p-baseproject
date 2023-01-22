@@ -49,6 +49,7 @@ rm *.tar.gz cmake SHA256SUMS.txt -rf
 COPY SHA256SUMS.txt ./
 
 RUN curl -LO https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-13.0.1.tar.gz && \
+curl -LO https://github.com/rui314/mold/archive/refs/tags/v1.10.1.tar.gz && \
 curl -LO https://github.com/Z3Prover/z3/archive/refs/tags/z3-4.12.0.tar.gz && \
 curl -LO https://github.com/klee/klee-uclibc/archive/refs/tags/klee_uclibc_v1.3.tar.gz && \
 # originally tried using tag v2.3
@@ -59,6 +60,8 @@ sha256sum -c SHA256SUMS.txt && \
 # unarchive everything, and then rename so file names are more consistent
 tar -xzf llvmorg-13.0.1.tar.gz && \
 mv llvm-project-llvmorg-13.0.1 llvm-project && \
+tar -xzf v1.10.1.tar.gz && \
+mv mold-1.10.1 mold && \
 tar -xzf z3-4.12.0.tar.gz && \
 mv z3-z3-4.12.0 z3 && \
 tar -xzf klee_uclibc_v1.3.tar.gz && \
@@ -68,7 +71,14 @@ mv klee-fc778afc9029c48b78aa59c20cdf3e8223a88081 klee && \
 # llvm
 mkdir llvm-project/build && \ 
 cd llvm-project/build && \
-cmake -G Ninja ../llvm -DLLVM_ENABLE_PROJECTS="tools;clang;compiler-rt;lld"  -DLLVM_TARGETS_TO_BUILD="host"  -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_OPTIMIZED_TABLEGEN=ON -DCMAKE_BUILD_TYPE=Release && \
+cmake -G Ninja ../llvm -DLLVM_ENABLE_PROJECTS="tools;clang;compiler-rt" -DLLVM_TARGETS_TO_BUILD="host" -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_OPTIMIZED_TABLEGEN=ON -DCMAKE_BUILD_TYPE=Release && \
+ninja && \
+ninja install && \
+cd ../../ && \
+# mold (depends on newer clang so build it after llvm)
+mkdir mold/build && \
+cd mold/build && \
+cmake -G Ninja ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ && \
 ninja && \
 ninja install && \
 cd ../../ && \
