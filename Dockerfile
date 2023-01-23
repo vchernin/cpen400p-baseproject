@@ -96,8 +96,7 @@ cmake -G Ninja -DENABLE_SOLVER_Z3=ON -DENABLE_UNIT_TESTS=OFF -DENABLE_SYSTEM_TES
 ninja && \
 ninja install && \
 cd ../../ && \
-# remove llvm-project's build directory, not llvm-project itself as we want it in the final container image (a llvm submodule is more annoying)
-rm *.tar.gz llvm-project/build z3 klee-uclibc klee SHA256SUMS.txt -rf
+rm *.tar.gz llvm-project z3 klee-uclibc klee SHA256SUMS.txt -rf
 
 RUN curl -LO https://github.com/AFLplusplus/AFLplusplus/archive/refs/tags/4.05c.tar.gz && \
 echo "5a2a7e94690771e2d80d2b30a72352e16bcc14f2cfff6d6fc1fd67f0ce2a9d3b 4.05c.tar.gz" > SHA256SUMS.txt && \
@@ -144,11 +143,6 @@ ninja && \
 ninja install && \
 cd ../../ && \
 rm *.tar.gz mold SHA256SUMS.txt -rf
-
-# put here temporarily
-RUN apt-get update && \
-apt-get install -y ccache && \
-rm -rf /var/lib/apt/lists/*
 
 # this approach is clumsy due to apt deps as we have no way of knowing what apt deps we need at runtime
 # FROM docker.io/ubuntu:18.04@sha256:0d32fa8d8671fb6600db45620b40e5189fc02eebb7e29fe8fbb0db49b58becea
