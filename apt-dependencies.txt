@@ -19,3 +19,4 @@ llvm-9-tools
 autoconf
 zlib1g-dev
 ccache
+graphviz
