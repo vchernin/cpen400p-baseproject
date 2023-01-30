@@ -33,7 +33,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker image (pull request)
-        uses: docker/build-push-action@v3.3.0
+        uses: docker/build-push-action@v4.0.0
         if: github.event_name == 'pull_request'
         with:
           push: false
@@ -43,7 +43,7 @@ jobs:
 
       # the package itself must allow the repo running this workflow to write to it so the image can be pushed
       - name: Build and push Docker image (push to master)
-        uses: docker/build-push-action@v3.3.0
+        uses: docker/build-push-action@v4.0.0
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         with:
           push: true
