@@ -144,6 +144,10 @@ ninja install && \
 cd ../../ && \
 rm *.tar.gz mold SHA256SUMS.txt -rf
 
+# disable fish greeting
+RUN mkdir -p /root/.config/fish/
+RUN echo "set fish_greeting" >> /root/.config/fish/config.fish
+
 # this approach is clumsy due to apt deps as we have no way of knowing what apt deps we need at runtime
 # FROM docker.io/ubuntu:18.04@sha256:0d32fa8d8671fb6600db45620b40e5189fc02eebb7e29fe8fbb0db49b58becea
 
