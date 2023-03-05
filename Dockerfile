@@ -1,5 +1,5 @@
-# updated as of 2023-01-14, tag is only for human reference
-FROM docker.io/ubuntu:18.04@sha256:0d32fa8d8671fb6600db45620b40e5189fc02eebb7e29fe8fbb0db49b58becea AS build
+# updated as of 2023-03-05, tag is only for human reference
+FROM docker.io/ubuntu:22.04@sha256:2adf22367284330af9f832ffefb717c78239f6251d9d0f58de50b86229ed1427 AS build
 
 # some of this file is rather annoying boilerplate copy paste, 
 # but it's not worth rewriting in buildstream or something more abstract as arguably we should not build a lot of these things in the first place, and just rely on some newer distro instead. Why ubuntu 18.04?
