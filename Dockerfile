@@ -147,6 +147,16 @@ ninja install && \
 cd ../../ && \
 rm *.tar.gz mold SHA256SUMS.txt -rf
 
+# install mdpdf using node, this isn't very reproducible but ok for our uses
+# node 18 or newer packages doesn't work with ubuntu 18.04
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+apt-get install -y nodejs && \
+# install dependencies of chromium for mdpdf
+apt-get install -y --no-install-recommends libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2 && \
+npm install -g mdpdf && \
+# remove uncessary cache
+rm -rf /var/lib/apt/lists/*
+
 # disable fish greeting
 RUN mkdir -p /root/.config/fish/
 RUN echo "set fish_greeting" >> /root/.config/fish/config.fish
