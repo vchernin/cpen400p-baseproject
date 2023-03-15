@@ -8,7 +8,7 @@ FROM docker.io/ubuntu:18.04@sha256:0d32fa8d8671fb6600db45620b40e5189fc02eebb7e29
 # todo user should probably not also be root but it doesn't really matter for this course
 WORKDIR /root
 
-COPY apt-dependencies.txt requirements.txt ./
+COPY apt-dependencies.txt ./
 
 # image is already up to date so avoid upgrade, this step is obviously not reproducible since apt dependencies change
 RUN apt-get update && \
@@ -21,7 +21,10 @@ rm -rf /var/lib/apt/lists/* && \
 # get rid of now useless file, left in layer but that's ok since it's small
 rm apt-dependencies.txt
 
-RUN pip3 install --require-hashes --only-binary :all: --no-cache-dir -r requirements.txt && \
+COPY requirements.txt ./
+
+RUN pip3 install --upgrade pip && \
+pip3 install --require-hashes --only-binary :all: --no-cache-dir -r requirements.txt && \
 # get rid of now useless file, left in layer but that's ok since it's small
 rm requirements.txt
 
