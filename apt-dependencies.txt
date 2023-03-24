@@ -20,4 +20,5 @@ autoconf
 zlib1g-dev
 ccache
 graphviz
+gnuplot
 fish
