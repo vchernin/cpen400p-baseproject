@@ -71,7 +71,7 @@ mv klee-fc778afc9029c48b78aa59c20cdf3e8223a88081 klee && \
 # llvm
 mkdir llvm-project/build && \ 
 cd llvm-project/build && \
-cmake -G Ninja ../llvm -DLLVM_ENABLE_PROJECTS="tools;clang;compiler-rt;lld"  -DLLVM_TARGETS_TO_BUILD="host"  -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_OPTIMIZED_TABLEGEN=ON -DCMAKE_BUILD_TYPE=Release && \
+cmake -G Ninja ../llvm -DLLVM_ENABLE_PROJECTS="tools;clang-tools-extra;clang;compiler-rt;lld"  -DLLVM_TARGETS_TO_BUILD="host"  -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_OPTIMIZED_TABLEGEN=ON -DCMAKE_BUILD_TYPE=Release && \
 ninja && \
 ninja install && \
 cd ../../ && \
